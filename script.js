@@ -24,59 +24,129 @@ document.addEventListener('DOMContentLoaded', function() {
 // 设置事件监听器
 function setupEventListeners() {
     // 表单提交事件
-    contactForm.addEventListener('submit', handleFormSubmit);
+    if (contactForm) {
+        contactForm.addEventListener('submit', handleFormSubmit);
+    }
     
     // 搜索功能
-    searchBtn.addEventListener('click', handleSearch);
-    searchInput.addEventListener('input', handleSearch);
+    if (searchBtn) {
+        searchBtn.addEventListener('click', handleSearch);
+    }
+    if (searchInput) {
+        searchInput.addEventListener('input', handleSearch);
+    }
     
     // 删除模态框事件
-    confirmDeleteBtn.addEventListener('click', confirmDelete);
-    cancelDeleteBtn.addEventListener('click', closeModal);
-    closeDeleteModal.addEventListener('click', closeModal);
+    if (confirmDeleteBtn) {
+        confirmDeleteBtn.addEventListener('click', confirmDelete);
+    }
+    if (cancelDeleteBtn) {
+        cancelDeleteBtn.addEventListener('click', closeModal);
+    }
+    if (closeDeleteModal) {
+        closeDeleteModal.addEventListener('click', closeModal);
+    }
     
     // 点击模态框外部关闭
-    deleteModal.addEventListener('click', function(e) {
-        if (e.target === deleteModal) {
-            closeModal();
-        }
-    });
+    if (deleteModal) {
+        deleteModal.addEventListener('click', function(e) {
+            if (e.target === deleteModal) {
+                closeModal();
+            }
+        });
+    }
 }
 
-// API调用函数
+// API调用函数 - 增强CORS支持
 async function apiCall(endpoint, options = {}) {
     try {
-        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+        // 添加CORS配置
+        const fetchOptions = {
+            mode: 'cors',
+            credentials: 'omit',
             headers: {
                 'Content-Type': 'application/json',
                 ...options.headers
             },
             ...options
-        });
+        };
+
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, fetchOptions);
         
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+        // 处理CORS预检请求
+        if (response.status === 0) {
+            throw new Error('CORS错误: 无法访问API');
         }
         
-        return await response.json();
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`HTTP错误! 状态: ${response.status}, 信息: ${errorText}`);
+        }
+        
+        // 检查响应内容类型
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            return await response.json();
+        } else {
+            return await response.text();
+        }
     } catch (error) {
         console.error('API调用失败:', error);
-        alert('操作失败，请检查网络连接或服务器状态');
+        
+        // 更详细的错误信息
+        if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+            alert('网络连接失败，请检查：\n1. 后端服务是否运行\n2. API地址是否正确\n3. 网络连接是否正常');
+        } else if (error.message.includes('CORS')) {
+            alert('跨域访问被阻止，请确保后端已正确配置CORS');
+        } else {
+            alert(`操作失败: ${error.message}`);
+        }
+        
         throw error;
+    }
+}
+
+// 测试后端连接
+async function testBackendConnection() {
+    try {
+        const response = await fetch(API_BASE_URL.replace('/api', ''), {
+            method: 'HEAD',
+            mode: 'cors'
+        });
+        return response.ok;
+    } catch (error) {
+        return false;
     }
 }
 
 // 加载联系人
 async function loadContacts() {
     try {
+        // 显示加载状态
+        contactsList.innerHTML = `
+            <div class="empty-state">
+                <i>⏳</i>
+                <h3>加载中...</h3>
+                <p>正在获取联系人数据</p>
+            </div>
+        `;
+
+        // 先测试连接
+        const isBackendAlive = await testBackendConnection();
+        if (!isBackendAlive) {
+            throw new Error('后端服务无法访问，请检查服务状态');
+        }
+
         const contacts = await apiCall('/contacts');
         renderContacts(contacts);
     } catch (error) {
+        console.error('加载联系人失败:', error);
         contactsList.innerHTML = `
             <div class="empty-state">
                 <i>❌</i>
                 <h3>加载失败</h3>
-                <p>无法获取联系人数据，请刷新页面重试</p>
+                <p>${error.message || '无法获取联系人数据'}</p>
+                <button onclick="loadContacts()" class="btn" style="margin-top: 10px;">重试</button>
             </div>
         `;
     }
@@ -84,7 +154,9 @@ async function loadContacts() {
 
 // 渲染联系人列表
 function renderContacts(contactsToRender) {
-    if (contactsToRender.length === 0) {
+    if (!contactsList) return;
+    
+    if (!contactsToRender || contactsToRender.length === 0) {
         contactsList.innerHTML = `
             <div class="empty-state">
                 <i>📇</i>
@@ -110,9 +182,9 @@ function renderContacts(contactsToRender) {
         contactElement.className = 'contact-item';
         contactElement.innerHTML = `
             <div class="contact-info">
-                <h3>${contact.name}</h3>
-                <p>${contact.phone} | ${contact.email || '无邮箱'} | ${groupNames[contact.group]}</p>
-                ${contact.company ? `<p>${contact.company}</p>` : ''}
+                <h3>${escapeHtml(contact.name)}</h3>
+                <p>${escapeHtml(contact.phone)} | ${escapeHtml(contact.email || '无邮箱')} | ${groupNames[contact.group] || '其他'}</p>
+                ${contact.company ? `<p>${escapeHtml(contact.company)}</p>` : ''}
             </div>
             <div class="contact-actions">
                 <button class="action-btn edit-btn" data-id="${contact.id}">✏️</button>
@@ -139,23 +211,42 @@ function renderContacts(contactsToRender) {
     });
 }
 
+// HTML转义函数，防止XSS攻击
+function escapeHtml(unsafe) {
+    if (unsafe === null || unsafe === undefined) return '';
+    return unsafe.toString()
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
 // 处理表单提交
 async function handleFormSubmit(e) {
     e.preventDefault();
     
-    const id = document.getElementById('contact-id').value;
-    const name = document.getElementById('name').value;
-    const phone = document.getElementById('phone').value;
-    const email = document.getElementById('email').value;
-    const company = document.getElementById('company').value;
-    const group = document.getElementById('group').value;
+    if (!contactForm) return;
+    
+    const id = document.getElementById('contact-id')?.value;
+    const name = document.getElementById('name')?.value;
+    const phone = document.getElementById('phone')?.value;
+    const email = document.getElementById('email')?.value;
+    const company = document.getElementById('company')?.value;
+    const group = document.getElementById('group')?.value;
+    
+    // 验证必填字段
+    if (!name || !phone) {
+        alert('姓名和电话号码是必填项');
+        return;
+    }
     
     const contactData = {
         name,
         phone,
-        email,
-        company,
-        group
+        email: email || '',
+        company: company || '',
+        group: group || 'other'
     };
     
     try {
@@ -188,15 +279,25 @@ async function editContact(id) {
     try {
         const contact = await apiCall(`/contacts/${id}`);
         
-        document.getElementById('contact-id').value = contact.id;
-        document.getElementById('name').value = contact.name;
-        document.getElementById('phone').value = contact.phone;
-        document.getElementById('email').value = contact.email || '';
-        document.getElementById('company').value = contact.company || '';
-        document.getElementById('group').value = contact.group;
+        const contactIdField = document.getElementById('contact-id');
+        const nameField = document.getElementById('name');
+        const phoneField = document.getElementById('phone');
+        const emailField = document.getElementById('email');
+        const companyField = document.getElementById('company');
+        const groupField = document.getElementById('group');
+        
+        if (contactIdField) contactIdField.value = contact.id;
+        if (nameField) nameField.value = contact.name;
+        if (phoneField) phoneField.value = contact.phone;
+        if (emailField) emailField.value = contact.email || '';
+        if (companyField) companyField.value = contact.company || '';
+        if (groupField) groupField.value = contact.group;
         
         // 滚动到表单区域
-        document.querySelector('.sidebar').scrollIntoView({ behavior: 'smooth' });
+        const sidebar = document.querySelector('.sidebar');
+        if (sidebar) {
+            sidebar.scrollIntoView({ behavior: 'smooth' });
+        }
     } catch (error) {
         // 错误已在apiCall中处理
     }
@@ -207,8 +308,12 @@ async function showDeleteModal(id) {
     try {
         const contact = await apiCall(`/contacts/${id}`);
         currentDeleteId = id;
-        deleteContactName.textContent = contact.name;
-        deleteModal.style.display = 'flex';
+        if (deleteContactName) {
+            deleteContactName.textContent = contact.name;
+        }
+        if (deleteModal) {
+            deleteModal.style.display = 'flex';
+        }
     } catch (error) {
         // 错误已在apiCall中处理
     }
@@ -234,21 +339,28 @@ async function confirmDelete() {
 
 // 关闭模态框
 function closeModal() {
-    deleteModal.style.display = 'none';
+    if (deleteModal) {
+        deleteModal.style.display = 'none';
+    }
     currentDeleteId = null;
 }
 
 // 重置表单
 function resetForm() {
-    document.getElementById('contact-id').value = '';
-    contactForm.reset();
+    const contactIdField = document.getElementById('contact-id');
+    if (contactIdField) {
+        contactIdField.value = '';
+    }
+    if (contactForm) {
+        contactForm.reset();
+    }
 }
 
 // 处理搜索
 async function handleSearch() {
-    const searchTerm = searchInput.value.toLowerCase().trim();
+    const searchTerm = searchInput?.value.toLowerCase().trim();
     
-    if (searchTerm === '') {
+    if (!searchTerm) {
         loadContacts();
         return;
     }
@@ -267,3 +379,13 @@ async function handleSearch() {
         // 错误已在apiCall中处理
     }
 }
+
+// 全局错误处理
+window.addEventListener('error', function(e) {
+    console.error('全局错误:', e.error);
+});
+
+window.addEventListener('unhandledrejection', function(e) {
+    console.error('未处理的Promise拒绝:', e.reason);
+    e.preventDefault();
+});
