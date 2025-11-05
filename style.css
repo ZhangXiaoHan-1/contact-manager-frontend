@@ -397,12 +397,13 @@ input:focus, select:focus {
     animation: fadeIn 0.3s ease-out;
 }
 
+/* 修改表单验证样式 - 将荧光绿改为粉色系 */
 input:invalid {
-    border-color: #d495ab;
+    border-color: #d495ab; /* 粉色系的错误颜色 */
 }
 
 input:valid {
-    border-color: #98fb98;
+    border-color: #a8e6a3; /* 柔和的浅绿色，比荧光绿更协调 */
 }
 
 .btn.loading {
