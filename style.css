@@ -140,8 +140,79 @@ input:focus, select:focus {
     width: 250px;
 }
 
+/* 新增分组栏样式 */
+.groups-bar {
+    margin-bottom: 25px;
+    padding: 20px;
+    background: #fffafb;
+    border-radius: 10px;
+    border: 1px solid #f8d7e6;
+}
+
+.groups-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.groups-header h3 {
+    color: #8b5a7c;
+    font-size: 1.2rem;
+}
+
+.groups-count {
+    color: #8b5a7c;
+    font-size: 14px;
+}
+
+.groups-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.group-filter {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: white;
+    border: 1px solid #f8d7e6;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s;
+    color: #8b5a7c;
+    font-size: 14px;
+}
+
+.group-filter:hover {
+    background: #ffe4ec;
+    transform: translateY(-2px);
+}
+
+.group-filter.active {
+    background: #b76e94;
+    color: white;
+    border-color: #b76e94;
+}
+
+.group-count {
+    background: #f8d7e6;
+    color: #8b5a7c;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.group-filter.active .group-count {
+    background: rgba(255, 255, 255, 0.3);
+    color: white;
+}
+
 .contacts-list {
-    max-height: 600px;
+    max-height: 500px; /* 稍微减少高度以容纳分组栏 */
     overflow-y: auto;
 }
 
@@ -279,6 +350,16 @@ input:focus, select:focus {
     
     .search-box input {
         width: 100%;
+    }
+    
+    .groups-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .groups-list {
+        justify-content: center;
     }
     
     .contact-item {
