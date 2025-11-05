@@ -1,9 +1,10 @@
 // API基础URL - 根据实际部署情况修改
 const API_BASE_URL = 'https://contact-manager-backend-0lbk.onrender.com/api';
 
-    
 let currentEditId = null;
 let currentDeleteId = null;
+let allContacts = []; // 存储所有联系人
+let currentFilter = 'all'; // 当前分组筛选
 
 // DOM元素
 const contactForm = document.getElementById('contact-form');
@@ -20,6 +21,7 @@ const closeDeleteModal = document.getElementById('close-delete-modal');
 document.addEventListener('DOMContentLoaded', function() {
     loadContacts();
     setupEventListeners();
+    setupGroupFilters();
 });
 
 // 设置事件监听器
@@ -55,6 +57,86 @@ function setupEventListeners() {
                 closeModal();
             }
         });
+    }
+}
+
+// 设置分组筛选功能
+function setupGroupFilters() {
+    const groupFilters = document.querySelectorAll('.group-filter');
+    groupFilters.forEach(filter => {
+        filter.addEventListener('click', function() {
+            // 移除所有active类
+            groupFilters.forEach(f => f.classList.remove('active'));
+            // 添加active类到当前点击的按钮
+            this.classList.add('active');
+            
+            // 获取分组类型
+            const group = this.getAttribute('data-group');
+            currentFilter = group;
+            
+            // 根据分组筛选联系人
+            filterContacts();
+        });
+    });
+}
+
+// 根据分组筛选联系人
+function filterContacts() {
+    let filteredContacts = [...allContacts];
+    
+    // 应用分组筛选
+    if (currentFilter !== 'all') {
+        filteredContacts = allContacts.filter(contact => contact.group === currentFilter);
+    }
+    
+    // 应用搜索筛选
+    const searchTerm = searchInput?.value.toLowerCase().trim();
+    if (searchTerm) {
+        filteredContacts = filteredContacts.filter(contact => 
+            contact.name.toLowerCase().includes(searchTerm) ||
+            contact.phone.includes(searchTerm) ||
+            (contact.email && contact.email.toLowerCase().includes(searchTerm)) ||
+            (contact.company && contact.company.toLowerCase().includes(searchTerm))
+        );
+    }
+    
+    renderContacts(filteredContacts);
+}
+
+// 更新分组计数
+function updateGroupCounts() {
+    if (!allContacts || allContacts.length === 0) {
+        // 如果没有联系人，将所有计数设为0
+        const groupCounts = document.querySelectorAll('.group-count');
+        groupCounts.forEach(count => {
+            count.textContent = '0';
+        });
+        document.getElementById('total-contacts').textContent = '0';
+        return;
+    }
+    
+    // 计算每个分组的数量
+    const counts = {
+        all: allContacts.length,
+        family: allContacts.filter(contact => contact.group === 'family').length,
+        friends: allContacts.filter(contact => contact.group === 'friends').length,
+        colleagues: allContacts.filter(contact => contact.group === 'colleagues').length,
+        business: allContacts.filter(contact => contact.group === 'business').length,
+        other: allContacts.filter(contact => contact.group === 'other').length
+    };
+    
+    // 更新分组计数显示
+    for (const [group, count] of Object.entries(counts)) {
+        const countElement = document.querySelector(`.group-filter[data-group="${group}"] .group-count`);
+        if (countElement) {
+            countElement.textContent = count;
+        }
+    }
+    
+    // 更新总联系人计数
+    const totalElement = document.getElementById('total-contacts');
+    if (totalElement) {
+        totalElement.textContent = allContacts.length;
     }
 }
 
@@ -126,7 +208,7 @@ async function loadContacts() {
         // 显示加载状态
         contactsList.innerHTML = `
             <div class="empty-state">
-                <i>⏳</i>
+                <div class="empty-icon">⏳</div>
                 <h3>加载中...</h3>
                 <p>正在获取联系人数据</p>
             </div>
@@ -139,12 +221,14 @@ async function loadContacts() {
         }
 
         const contacts = await apiCall('/contacts');
-        renderContacts(contacts);
+        allContacts = contacts; // 保存所有联系人
+        updateGroupCounts(); // 更新分组计数
+        filterContacts(); // 应用当前筛选条件
     } catch (error) {
         console.error('加载联系人失败:', error);
         contactsList.innerHTML = `
             <div class="empty-state">
-                <i>❌</i>
+                <div class="empty-icon">❌</div>
                 <h3>加载失败</h3>
                 <p>${error.message || '无法获取联系人数据'}</p>
                 <button onclick="loadContacts()" class="btn" style="margin-top: 10px;">重试</button>
@@ -158,11 +242,16 @@ function renderContacts(contactsToRender) {
     if (!contactsList) return;
     
     if (!contactsToRender || contactsToRender.length === 0) {
+        let message = '暂无联系人';
+        if (currentFilter !== 'all' || searchInput?.value) {
+            message = '没有找到匹配的联系人';
+        }
+        
         contactsList.innerHTML = `
             <div class="empty-state">
-                <i>📇</i>
-                <h3>暂无联系人</h3>
-                <p>添加您的第一个联系人开始使用通讯录</p>
+                <div class="empty-icon">📇</div>
+                <h3>${message}</h3>
+                <p>${currentFilter !== 'all' ? '尝试选择其他分组或清除筛选条件' : '添加您的第一个联系人开始使用通讯录'}</p>
             </div>
         `;
         return;
@@ -358,27 +447,8 @@ function resetForm() {
 }
 
 // 处理搜索
-async function handleSearch() {
-    const searchTerm = searchInput?.value.toLowerCase().trim();
-    
-    if (!searchTerm) {
-        loadContacts();
-        return;
-    }
-    
-    try {
-        const contacts = await apiCall('/contacts');
-        const filteredContacts = contacts.filter(contact => 
-            contact.name.toLowerCase().includes(searchTerm) ||
-            contact.phone.includes(searchTerm) ||
-            (contact.email && contact.email.toLowerCase().includes(searchTerm)) ||
-            (contact.company && contact.company.toLowerCase().includes(searchTerm))
-        );
-        
-        renderContacts(filteredContacts);
-    } catch (error) {
-        // 错误已在apiCall中处理
-    }
+function handleSearch() {
+    filterContacts(); // 使用统一的筛选函数
 }
 
 // 全局错误处理
