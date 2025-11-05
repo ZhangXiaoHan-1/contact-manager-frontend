@@ -1,5 +1,5 @@
 // API基础URL - 根据实际部署情况修改
-const API_BASE_URL = 'https://contact-manager-backend-0lbk.onrender.com/api/contacts';
+const API_BASE_URL = 'https://contact-manager-backend-0lbk.onrender.com/api';
 
     
 let currentEditId = null;
