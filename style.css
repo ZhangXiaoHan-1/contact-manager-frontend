@@ -2,11 +2,11 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 body {
-    background: #fff0f5; /* 浅粉色背景 */
+    background: #fff0f5;
     color: #333;
     line-height: 1.6;
     min-height: 100vh;
@@ -21,7 +21,7 @@ body {
 header {
     text-align: center;
     margin-bottom: 30px;
-    color: #8b5a7c; /* 深紫粉色，比背景深但协调 */
+    color: #8b5a7c;
     padding: 20px;
 }
 
@@ -38,21 +38,21 @@ h1 {
     border-radius: 15px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     overflow: hidden;
-    border: 1px solid #f8d7e6; /* 浅粉色边框 */
+    border: 1px solid #f8d7e6;
 }
 
 .sidebar {
     padding: 25px;
-    background: #fffafb; /* 浅粉色背景 */
-    border-right: 1px solid #f8d7e6; /* 浅粉色边框 */
+    background: #fffafb;
+    border-right: 1px solid #f8d7e6;
 }
 
 .sidebar h2 {
     margin-bottom: 20px;
-    color: #8b5a7c; /* 深紫粉色 */
+    color: #8b5a7c;
     font-size: 1.5rem;
     padding-bottom: 10px;
-    border-bottom: 2px solid #f8d7e6; /* 浅粉色边框 */
+    border-bottom: 2px solid #f8d7e6;
 }
 
 .form-group {
@@ -63,13 +63,13 @@ label {
     display: block;
     margin-bottom: 8px;
     font-weight: 600;
-    color: #5d4a5a; /* 深紫灰色 */
+    color: #5d4a5a;
 }
 
 input, select {
     width: 100%;
     padding: 12px 15px;
-    border: 1px solid #f8d7e6; /* 浅粉色边框 */
+    border: 1px solid #f8d7e6;
     border-radius: 8px;
     font-size: 16px;
     transition: all 0.3s;
@@ -78,13 +78,13 @@ input, select {
 
 input:focus, select:focus {
     outline: none;
-    border-color: #d495ab; /* 中等粉色 */
-    box-shadow: 0 0 0 2px rgba(212, 149, 171, 0.2); /* 粉色阴影 */
+    border-color: #d495ab;
+    box-shadow: 0 0 0 2px rgba(212, 149, 171, 0.2);
 }
 
 .btn {
     padding: 12px 20px;
-    background: #b76e94; /* 柔和的深粉色 */
+    background: #b76e94;
     color: white;
     border: none;
     border-radius: 8px;
@@ -95,9 +95,9 @@ input:focus, select:focus {
 }
 
 .btn:hover {
-    background: #a15c7e; /* 更深的粉色 */
+    background: #a15c7e;
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(177, 108, 146, 0.3); /* 粉色阴影 */
+    box-shadow: 0 4px 8px rgba(177, 108, 146, 0.3);
 }
 
 .btn-block {
@@ -106,11 +106,11 @@ input:focus, select:focus {
 }
 
 .btn-danger {
-    background: #d495ab; /* 粉色系的危险按钮 */
+    background: #d495ab;
 }
 
 .btn-danger:hover {
-    background: #c18399; /* 更深的粉色 */
+    background: #c18399;
 }
 
 .main-content {
@@ -123,11 +123,11 @@ input:focus, select:focus {
     align-items: center;
     margin-bottom: 25px;
     padding-bottom: 15px;
-    border-bottom: 2px solid #f8d7e6; /* 浅粉色边框 */
+    border-bottom: 2px solid #f8d7e6;
 }
 
 .contacts-header h2 {
-    color: #8b5a7c; /* 深紫粉色 */
+    color: #8b5a7c;
     font-size: 1.5rem;
 }
 
@@ -140,7 +140,6 @@ input:focus, select:focus {
     width: 250px;
 }
 
-/* 新增分组栏样式 */
 .groups-bar {
     margin-bottom: 25px;
     padding: 20px;
@@ -212,7 +211,7 @@ input:focus, select:focus {
 }
 
 .contacts-list {
-    max-height: 500px; /* 稍微减少高度以容纳分组栏 */
+    max-height: 500px;
     overflow-y: auto;
 }
 
@@ -222,21 +221,21 @@ input:focus, select:focus {
     align-items: center;
     padding: 18px;
     margin-bottom: 15px;
-    background: #ffffff; /* 纯白色替换浅蓝色 */
+    background: #ffffff;
     border-radius: 10px;
-    border: 1px solid #f0f0f0; /* 浅灰色边框 */
+    border: 1px solid #f0f0f0;
     transition: all 0.3s;
 }
 
 .contact-item:hover {
     transform: translateY(-3px);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-    border-color: #f8d7e6; /* 浅粉色边框 */
+    border-color: #f8d7e6;
 }
 
 .contact-info h3 {
     margin-bottom: 8px;
-    color: #8b5a7c; /* 深紫粉色 */
+    color: #8b5a7c;
     font-size: 1.2rem;
 }
 
@@ -258,11 +257,11 @@ input:focus, select:focus {
     padding: 8px;
     border-radius: 5px;
     transition: all 0.2s;
-    color: #8b5a7c; /* 深紫粉色 */
+    color: #8b5a7c;
 }
 
 .action-btn:hover {
-    background: #ffe4ec; /* 浅粉色背景 */
+    background: #ffe4ec;
 }
 
 .empty-state {
@@ -271,15 +270,14 @@ input:focus, select:focus {
     color: #5f6368;
 }
 
-.empty-state i {
+.empty-icon {
     font-size: 50px;
     margin-bottom: 20px;
-    display: block;
 }
 
 .empty-state h3 {
     margin-bottom: 10px;
-    color: #8b5a7c; /* 深紫粉色 */
+    color: #8b5a7c;
 }
 
 .modal {
@@ -310,11 +308,11 @@ input:focus, select:focus {
     align-items: center;
     margin-bottom: 20px;
     padding-bottom: 15px;
-    border-bottom: 1px solid #f8d7e6; /* 浅粉色边框 */
+    border-bottom: 1px solid #f8d7e6;
 }
 
 .modal-header h3 {
-    color: #8b5a7c; /* 深紫粉色 */
+    color: #8b5a7c;
 }
 
 .close-btn {
@@ -332,7 +330,6 @@ input:focus, select:focus {
     margin-top: 25px;
 }
 
-/* 响应式设计 */
 @media (max-width: 768px) {
     .app-container {
         grid-template-columns: 1fr;
@@ -373,7 +370,6 @@ input:focus, select:focus {
     }
 }
 
-/* 滚动条样式 */
 .contacts-list::-webkit-scrollbar {
     width: 8px;
 }
@@ -384,15 +380,14 @@ input:focus, select:focus {
 }
 
 .contacts-list::-webkit-scrollbar-thumb {
-    background: #e0b1c2; /* 粉色系滚动条 */
+    background: #e0b1c2;
     border-radius: 4px;
 }
 
 .contacts-list::-webkit-scrollbar-thumb:hover {
-    background: #d495ab; /* 更深的粉色 */
+    background: #d495ab;
 }
 
-/* 加载动画 */
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
@@ -402,16 +397,14 @@ input:focus, select:focus {
     animation: fadeIn 0.3s ease-out;
 }
 
-/* 表单验证样式 */
 input:invalid {
-    border-color: #d495ab; /* 粉色系的错误颜色 */
+    border-color: #d495ab;
 }
 
 input:valid {
-    border-color: #98fb98; /* 保持绿色表示有效 */
+    border-color: #98fb98;
 }
 
-/* 按钮加载状态 */
 .btn.loading {
     position: relative;
     color: transparent;
